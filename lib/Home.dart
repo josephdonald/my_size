@@ -9,7 +9,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   TextEditingController _pesoController = TextEditingController();
   TextEditingController _dataController = TextEditingController();
 
@@ -17,8 +16,7 @@ class _HomeState extends State<Home> {
 
   var _db = MedidasHelper();
 
-  _formatarData(String data){
-
+  _formatarData(String data) {
     var formatador = DateFormat("dd/MM/yy - HH:mm:ss");
 
     DateTime dataConvertida = DateTime.parse(data);
@@ -26,29 +24,26 @@ class _HomeState extends State<Home> {
     String dataFormatada = formatador.format(dataConvertida);
 
     return dataFormatada;
-
   }
 
-  _exibirTelaCadastro( {Medidas medidas, bool remover} ) {
-
+  _exibirTelaCadastro({Medidas medidas, bool remover}) {
     bool habilitaTextField;
     String textoSalvaAtualizar = "";
     String textoBotao = "";
 
-    if (medidas == null ){
+    if (medidas == null) {
       habilitaTextField = true;
       _pesoController.clear();
       _dataController.clear();
       textoSalvaAtualizar = "Salvar medida";
       textoBotao = "Salvar";
-    } else if(medidas != null && remover == null) {
+    } else if (medidas != null && remover == null) {
       habilitaTextField = true;
       _pesoController.text = medidas.peso.toString();
       _dataController.text = medidas.data;
       textoSalvaAtualizar = "Atualizar medida";
       textoBotao = "Atualizar";
-    } else if( medidas != null && remover ){
-
+    } else if (medidas != null && remover) {
       _pesoController.text = medidas.peso.toString();
       _dataController.text = medidas.data;
       habilitaTextField = false;
@@ -84,7 +79,8 @@ class _HomeState extends State<Home> {
               ),
               FlatButton(
                 onPressed: () {
-                  _salvarAtualizarMedidas(medidaAtualizada: medidas, remover: remover);
+                  _salvarAtualizarMedidas(
+                      medidaAtualizada: medidas, remover: remover);
                 },
                 child: Text(textoBotao),
               )
@@ -94,11 +90,10 @@ class _HomeState extends State<Home> {
   }
 
   _recuperarMedidas() async {
-
     List medidasRecuperadas = await _db.recuperarMedidas();
     List<Medidas> listaTemporaria = List<Medidas>();
 
-    for (var item in medidasRecuperadas){
+    for (var item in medidasRecuperadas) {
       Medidas medidas = Medidas.fromMap(item);
       listaTemporaria.add(medidas);
     }
@@ -108,36 +103,28 @@ class _HomeState extends State<Home> {
     });
 
     listaTemporaria = null;
-
   }
 
   _salvarAtualizarMedidas({Medidas medidaAtualizada, bool remover}) async {
-
-    double peso = double.parse(_pesoController.text.replaceAll(',','.'));
+    double peso = double.parse(_pesoController.text.replaceAll(',', '.'));
     String data = DateTime.now().toString();
 
-
-    if(medidaAtualizada == null){
-
+    if (medidaAtualizada == null) {
       Medidas medidas = Medidas(peso, data);
-      print("teste salvar: " + peso.toString() );
+      print("teste salvar: " + peso.toString());
       int resultado = await _db.salvarMedidas(medidas);
 
-      print("teste salvar: " + resultado.toString() );
-
-    } else if (medidaAtualizada != null && remover == null){
-
+      print("teste salvar: " + resultado.toString());
+    } else if (medidaAtualizada != null && remover == null) {
       medidaAtualizada.peso = peso;
 
       int resultado = await _db.atualizarMedidas(medidaAtualizada);
 
       print("medida atualizada!");
-
-    } else if (medidaAtualizada != null && remover){
+    } else if (medidaAtualizada != null && remover) {
       _removerMedidas(medidaAtualizada.id);
 
       print("funcao remover");
-
     }
 
     _pesoController.clear();
@@ -148,11 +135,9 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  _removerMedidas (int id) async {
-
+  _removerMedidas(int id) async {
     await _db.removerMedidas(id);
     _recuperarMedidas();
-
   }
 
   @override
@@ -165,16 +150,16 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("My Size"),
-        backgroundColor: Color.fromRGBO(17, 61, 79, 1),
-      ),
+      // appBar: AppBar(
+      //   title: Text("My Size"),
+      //   backgroundColor: Color.fromRGBO(17, 61, 79, 1),
+      // ),
       body: Column(
         children: <Widget>[
           Expanded(
             child: ListView.builder(
               itemCount: _medidas.length,
-              itemBuilder: (context, index){
+              itemBuilder: (context, index) {
                 final item = _medidas[index];
 
                 return Card(
@@ -185,7 +170,7 @@ class _HomeState extends State<Home> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             _exibirTelaCadastro(medidas: item);
                             print("editar");
                           },
@@ -198,7 +183,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             _exibirTelaCadastro(medidas: item, remover: true);
                           },
                           child: Padding(
@@ -213,18 +198,39 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 );
-
               },
             ),
           ),
-          FloatingActionButton(
-            backgroundColor: Color.fromRGBO(17, 61, 79, 1),
-            child: Icon(Icons.add),
-            onPressed: () {
-              _exibirTelaCadastro();
-            },
-          ),
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: Color.fromRGBO(17, 61, 79, 1),
+        shape: CircularNotchedRectangle(),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.menu),
+                color: Color.fromRGBO(223, 228, 230, 1),
+                onPressed: () {
+                  print("botao menu");
+                },
+              ),
+              FloatingActionButton(
+                backgroundColor: Color.fromRGBO(223, 228, 230, 1),
+                splashColor: Colors.green,
+                child: Icon(Icons.add, color: Color.fromRGBO(17, 61, 79, 1),),
+                onPressed: () {
+                  _exibirTelaCadastro();
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
