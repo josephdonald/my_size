@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_size/helper/DatabaseHelper.dart';
 import 'package:my_size/helper/MedidasHelper.dart';
 import 'package:my_size/model/Medidas.dart';
+import 'package:my_size/pages/FormPerfil.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,12 +11,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  //CORES PRIMARIA E SECUNDARIA
+  Color primaryColor = Color.fromRGBO(17, 61, 79, 1);
+  Color secondaryColor = Color.fromRGBO(223, 228, 230, 1);
+
   TextEditingController _pesoController = TextEditingController();
   TextEditingController _dataController = TextEditingController();
 
   List<Medidas> _medidas = List<Medidas>();
 
-  var _db = MedidasHelper();
+  // var _db = MedidasHelper();
+  var _db = DatabaseHelper();
 
   _formatarData(String data) {
     var formatador = DateFormat("dd/MM/yy - HH:mm:ss");
@@ -79,8 +89,7 @@ class _HomeState extends State<Home> {
               ),
               FlatButton(
                 onPressed: () {
-                  _salvarAtualizarMedidas(
-                      medidaAtualizada: medidas, remover: remover);
+                  _salvarAtualizarMedidas(medidaAtualizada: medidas, remover: remover);
                 },
                 child: Text(textoBotao),
               )
@@ -106,6 +115,7 @@ class _HomeState extends State<Home> {
   }
 
   _salvarAtualizarMedidas({Medidas medidaAtualizada, bool remover}) async {
+
     double peso = double.parse(_pesoController.text.replaceAll(',', '.'));
     String data = DateTime.now().toString();
 
@@ -150,6 +160,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       // appBar: AppBar(
       //   title: Text("My Size"),
       //   backgroundColor: Color.fromRGBO(17, 61, 79, 1),
@@ -204,7 +215,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Color.fromRGBO(17, 61, 79, 1),
+        color: primaryColor,
         shape: CircularNotchedRectangle(),
         child: Padding(
           padding: EdgeInsets.all(5),
@@ -215,21 +226,78 @@ class _HomeState extends State<Home> {
             children: <Widget>[
               IconButton(
                 icon: Icon(Icons.menu),
-                color: Color.fromRGBO(223, 228, 230, 1),
+                color: secondaryColor,
                 onPressed: () {
+                  _scaffoldKey.currentState.openDrawer();
                   print("botao menu");
                 },
               ),
               FloatingActionButton(
-                backgroundColor: Color.fromRGBO(223, 228, 230, 1),
+                backgroundColor: secondaryColor,
                 splashColor: Colors.green,
-                child: Icon(Icons.add, color: Color.fromRGBO(17, 61, 79, 1),),
+                child: Icon(Icons.add, color: primaryColor,),
                 onPressed: () {
                   _exibirTelaCadastro();
                 },
               ),
             ],
           ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: primaryColor),
+              arrowColor: primaryColor,
+              accountName: Text("User"),
+              accountEmail: Text("E-mail"),
+              currentAccountPicture: CircleAvatar(
+                // backgroundImage: NetworkImage("https://i.pravatar.cc/300"),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: GestureDetector(
+
+                child: Text(
+                  "Perfil",
+                  style: TextStyle(fontSize: 20, color: primaryColor),
+                ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => FormPerfil()));
+                  print("perfil");
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: GestureDetector(
+                child: Text(
+                  "Configurações",
+                  style: TextStyle(fontSize: 20, color: primaryColor),
+                ),
+                onTap: () {
+                  print("configurações");
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: GestureDetector(
+                child: Text(
+                  "Logout",
+                  style: TextStyle(fontSize: 20, color: primaryColor),
+                ),
+                onTap: () {
+                  print("logout");
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

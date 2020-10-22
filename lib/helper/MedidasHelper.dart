@@ -42,6 +42,7 @@ class MedidasHelper{
     await db.execute(sql);
   }
 
+  //METODOS TABELA MEDIDAS
   Future<int> salvarMedidas(Medidas medidas) async {
     var bancoDados = await db;
     int resultado = await bancoDados.insert(nomeTabela, medidas.toMap());
