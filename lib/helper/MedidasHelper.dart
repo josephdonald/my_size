@@ -51,7 +51,29 @@ class MedidasHelper{
 
   recuperarMedidas() async {
     var bancoDados = await db;
-    String sql = "SELECT * FROM $nomeTabela ORDER BY $colunaDataHorario DESC";
+    String sql = "SELECT * FROM $nomeTabela ORDER BY $colunaDataHorario DESC limit 1";
+    List listaMedidas = await bancoDados.rawQuery(sql);
+
+    return listaMedidas;
+  }
+
+  recuperaMaiorPeso() async {
+    var bancoDados = await db;
+    String sql = "SELECT max($colunaPeso) as peso FROM $nomeTabela";
+    List listaMedidas = await bancoDados.rawQuery(sql);
+
+    return listaMedidas;
+  }
+  recuperaMenorPeso() async {
+    var bancoDados = await db;
+    String sql = "SELECT min($colunaPeso) as peso FROM $nomeTabela";
+    List listaMedidas = await bancoDados.rawQuery(sql);
+
+    return listaMedidas;
+  }
+  recuperaPesoMedio() async {
+    var bancoDados = await db;
+    String sql = "SELECT avg($colunaPeso) as peso FROM $nomeTabela";
     List listaMedidas = await bancoDados.rawQuery(sql);
 
     return listaMedidas;

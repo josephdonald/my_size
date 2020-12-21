@@ -17,7 +17,9 @@ class _FormPerfilState extends State<FormPerfil> {
   Color secondaryColor = Color.fromRGBO(223, 228, 230, 1);
 
   //TEXTO BOTAO SALVA / ATUALIZAR
-  String botaoSalvarAtualizar = "";
+  String botaoSalvarAtualizar = "Salvar";
+
+  // bool salvar = true;
 
   //INSTANCIA O BANCO NA VARIAVEL
   var _db = DatabaseHelper();
@@ -28,7 +30,6 @@ class _FormPerfilState extends State<FormPerfil> {
   TextEditingController controllerEmail = TextEditingController();
   TextEditingController controllerAltura = TextEditingController();
   TextEditingController controllerDtNasc = TextEditingController();
-//  TextEditingController controllerGender = TextEditingController();
   TextEditingController controllerPesoObj = TextEditingController();
 
   String radioGenero = "";
@@ -44,13 +45,11 @@ class _FormPerfilState extends State<FormPerfil> {
     double pesoObj = controllerPesoObj.text == "" ? null : double.parse(controllerPesoObj.text);
 
     if (botaoSalvarAtualizar == "Salvar"){
-      print("SALVAR");
+
       //save
-      // Perfil perfil = Perfil(nome: nome, email: email, altura: altura, dataNascimento: dtNasc, genero: genero, pesoObjetivo: pesoObj);
+      Perfil novoPerfil = Perfil(nome: nome, email: email, altura: altura, dataNascimento: dtNasc, genero: genero, pesoObjetivo: pesoObj);
 
-      print("PERFIL: " + perfil.toString() );
-
-      int resultado = await _db.salvarPerfil(perfilAtualizado);
+      int resultado = await _db.salvarPerfil(novoPerfil);
 
       return resultado;
 
@@ -77,15 +76,16 @@ class _FormPerfilState extends State<FormPerfil> {
     DatabaseHelper databaseHelper = DatabaseHelper();
 
     List dadosPerfil = await databaseHelper.getPerfil();
-
-    if (dadosPerfil.isNotEmpty){
-      botaoSalvarAtualizar = "Atualizar";
-
-    } else {
-      botaoSalvarAtualizar = "Salvar";
-    }
-
+    
     setState(() {
+
+      if (dadosPerfil.isNotEmpty){
+        botaoSalvarAtualizar = "Atualizar";
+        // print("UP PERFIL: " + dadosPerfil[0].toString());
+      } else {
+        botaoSalvarAtualizar = "Salvar";
+      }
+
       for(var item in dadosPerfil){
         perfil = Perfil.fromMap(item);
         controllerNome.text = perfil.nome;

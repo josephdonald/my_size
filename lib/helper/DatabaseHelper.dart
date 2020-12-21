@@ -8,9 +8,10 @@ class DatabaseHelper {
   static final String colIdMedidas = "id_medidas";
   static final String colunaPeso = "peso";
   static final String colunaDataHorario = "dataHorario";
+  static final String colunaFkPerfil = "id_perfil_fk";
 
   static final String nomeTabPerfil = "perfil";
-  static String colIdPerfil = "id_perfil";
+  static final String colIdPerfil = "id_perfil";
   static final String colNome = "nome";
   static final String colEmail = "email";
   static final String colAltura = "altura";
@@ -42,7 +43,7 @@ class DatabaseHelper {
     final localBancoDados = join(caminhoBancoDados, "banco_minhas_medidas.db");
 
     var dbInit =
-        await openDatabase(localBancoDados, version: 2, onCreate: _onCreate);
+        await openDatabase(localBancoDados, version: 3, onCreate: _onCreate);
 
     return dbInit;
   }
@@ -61,13 +62,25 @@ class DatabaseHelper {
     await db.execute(sqlPerfil);
 
     String sqlMedidas =
-        "CREATE TABLE $nomeTabMedidas ($colIdMedidas INTEGER PRIMARY KEY AUTOINCREMENT, $colunaPeso REAL, $colunaDataHorario DATETIME)";
+        "CREATE TABLE $nomeTabMedidas ("
+        "$colIdMedidas INTEGER PRIMARY KEY AUTOINCREMENT,"
+        " $colunaPeso REAL, "
+        "$colunaDataHorario DATETIME, "
+        "$colunaFkPerfil INTEGER,"
+        ""
+        "foreign key ($colunaFkPerfil) references $nomeTabPerfil($colIdPerfil)  ON DELETE SET NULL"
+        ")";
+
+    //foreign key (cidade_id) references cidades (id)
     await db.execute(sqlMedidas);
   }
 
   //###### METODOS TABELA MEDIDAS #########
   Future<int> salvarMedidas(Medidas medidas) async {
     var bancoDados = await databaseMySize;
+
+    medidas.idPerfilFk = 1;
+
     int resultado = await bancoDados.insert(nomeTabMedidas, medidas.toMap());
     // databaseMySize.close();
     return resultado;
@@ -78,6 +91,9 @@ class DatabaseHelper {
     String sql =
         "SELECT * FROM $nomeTabMedidas ORDER BY $colunaDataHorario DESC";
     List listaMedidas = await bancoDados.rawQuery(sql);
+
+    print("LISTA DE MEDIDAS" + listaMedidas[0].toString() );
+
     // databaseMySize.close();
     return listaMedidas;
   }
@@ -85,10 +101,12 @@ class DatabaseHelper {
   Future<int> atualizarMedidas(Medidas medidas) async {
     var bancoDados = await databaseMySize;
 
+    medidas.idPerfilFk = 1;
+
     return await bancoDados.update(
       nomeTabMedidas,
       medidas.toMap(),
-      where: "id = ?",
+      where: "$colIdMedidas = ?",
       whereArgs: [medidas.id],
     );
   }
@@ -98,7 +116,7 @@ class DatabaseHelper {
 
     return await bancoDados.delete(
       nomeTabMedidas,
-      where: "id = ?",
+      where: "$colIdMedidas = ?",
       whereArgs: [id],
     );
   }
@@ -143,6 +161,16 @@ class DatabaseHelper {
       print("Erro: " + e.toString() );
     }
   }
+
+  // Future<int> removerPerfil(int id) async {
+  //   var bancoDados = await databaseMySize;
+  //
+  //   return await bancoDados.delete(
+  //     nomeTabPerfil,
+  //     where: "$colIdPerfil = ?",
+  //     whereArgs: [id],
+  //   );
+  // }
 
   Future<List> getPerfil() async {
     var bancoDados = await this.databaseMySize;
